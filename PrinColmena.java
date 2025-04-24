@@ -8,7 +8,6 @@ import Clases.LeerJson;
 public class PrinColmena {
     static Scanner scanner = new Scanner(System.in);
     static ArrayList<Colmena> Colmenas = new ArrayList<>();
-    static DatosApicola datosApicola = new DatosApicola();
 
     public static void main(String[] args) {
         try {
@@ -47,60 +46,125 @@ public class PrinColmena {
     }
 
     // Función que maneja la opción del menú
-   public static boolean manejarOpcion(String opcion) {
+    public static boolean manejarOpcion(String opcion) {
         switch (opcion) {
-            case "1" -> GestorColmenas.registrarColmena(datosApicola);
-            case "2" -> GestorColmenas.registrarApicultor();
-            case "3" -> GestorColmenas.asignarAbejaReina();
-            case "4" -> GestorColmenas.realizarInspeccion();
-            case "5" -> GestorColmenas.mostrarInformacion();
-            case "6" -> GestorColmenas.asignarApicultorAColmena();
-            case "7" -> GestorColmenas.editarInformacion();
+            case "1" ->
+                    GestorColmenas.registrarColmena();
+            case "2" ->
+                    GestorColmenas.registrarApicultor();
+            case "3" ->
+                    GestorColmenas.asignarAbejaReina();
+            case "4" ->
+                    GestorColmenas.realizarInspeccion();
+            case "5" ->
+                    GestorColmenas.mostrarInformacion();
+            case "6" ->
+                    GestorColmenas.asignarApicultorAColmena();
+            case "7" ->
+                    GestorColmenas.editarInformacion();
             case "8" -> {
-            // Guardar los datos al salir
-            LeerJson.Guardar(datosApicola); // Guardar la información
-            return false; // Finalizar el ciclo y salir del programa
+                // TODO: Confirmar salida, guardar datos si es necesario
+                return false;
             }
-            default -> System.out.println("⚠️ Opción no válida. Intenta nuevamente.");
+            default -> System.out.println("⚠️ Opción no válida. Intenta nuevamente."); // los de menu, cambien eso
         }
         return true;
     }
+}
 
 public class GestorColmenas {
-   public static void registrarColmena(DatosApicola datosApicola) {
+    public static void registrarColmena() {
         System.out.println("\n🐝 REGISTRO DE NUEVA COLMENA");
-    
+
         try {
+            // Se solicita el ID para identificar de forma única la colmena.
             String id = Utils.solicitarCampo("Ingrese ID de la colmena: ");
-    
-            if (Utils.idExiste(datosApicola.obtenerColmenas(), id)) {
+
+            // Verifica si ya existe una colmena con ese ID para evitar duplicados.
+            if (Utils.idExiste(colmenas, id)) {
                 System.out.println("El ID " + id + " ya está registrado.\n");
-                return;
+                return; // Se detiene el proceso si el ID ya está en uso.
             }
-    
+
+            // Se pide la ubicación porque es fundamental saber dónde se encuentra la colmena físicamente.
             String ubicacion = Utils.solicitarCampo("Ingrese ubicación de la colmena: ");
+
+            // El estado de salud es necesario para monitorear el bienestar de la colmena desde su registro.
             String estadoSalud = solicitarEstadoSalud();
+
+            // El tipo define la estructura de la colmena, lo cual puede afectar su mantenimiento y producción.
             String tipo = Utils.solicitarCampo("Ingrese tipo de colmena (Ej: Langstroth, Warre, Top-Bar): ");
+
+            // Se solicita la cantidad de abejas como dato básico sobre la población de la colmena.
             int cantidadAbejas = solicitarCantidadAbejas();
+
+            // Se solicita la produccion de miel en la colmena
             float produccionMiel = solicitarProduccionMiel();
-    
+
+            // Crea una nueva colmena
             Colmena nuevaColmena = new Colmena(id, ubicacion, tipo, estadoSalud, cantidadAbejas, produccionMiel);
-            datosApicola.agregarColmena(nuevaColmena); // Usamos datosApicola para agregar la colmena
-    
+            colmenas.add(nuevaColmena); // Se agrega la nueva colmena a la lista global.
+
             System.out.println("✅ Colmena registrada correctamente.");
         } catch (Exception e) {
+            // Captura cualquier error inesperado durante el proceso de registro.
             System.out.println("❌ Error al registrar la colmena: " + e.getMessage());
         }
     }
 
     // Función para registrar un nuevo apicultor
     public static void registrarApicultor() {
-        // TODO: Pedir datos del apicultor (nombre, edad, experiencia, etc.)
-        // TODO: Validar los datos
-        // TODO: Crear objeto Apicultor
-        // TODO: Agregarlo a la lista correspondiente
-        // TODO: Confirmar el registro
+       System.out.println("\n🐝 REGISTRO DE NUEVO APICULTOR");
+
+    try {
+        // Solicitar el nombre del apicultor
+        String nombre = Utils.solicitarCampo("Ingrese el nombre del apicultor: ");
+        
+        // Validar que el nombre no esté vacío
+        if (nombre.isEmpty()) {
+            System.out.println("⚠️ El nombre no puede estar vacío. Intenta nuevamente.");
+            return;
+        }
+
+        // Solicitar la edad del apicultor
+        int edad = -1;
+        while (edad < 18) {
+            try {
+                edad = Integer.parseInt(Utils.solicitarCampo("Ingrese la edad del apicultor (mayor de 18): "));
+                if (edad < 18) {
+                    System.out.println("⚠️ El apicultor debe ser mayor de 18 años.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("⚠️ Por favor, ingrese un número válido para la edad.");
+            }
+        }
+
+        // Solicitar los años de experiencia del apicultor
+        int aniosExperiencia = -1;
+        while (aniosExperiencia < 0) {
+            try {
+                aniosExperiencia = Integer.parseInt(Utils.solicitarCampo("Ingrese los años de experiencia del apicultor: "));
+                if (aniosExperiencia < 0) {
+                    System.out.println("⚠️ Los años de experiencia no pueden ser negativos.");
+                }
+            } catch (NumberFormatException e) {
+                System.out.println("⚠️ Por favor, ingrese un número válido para los años de experiencia.");
+            }
+        }
+
+        // Crear un nuevo objeto apicultor con los datos proporcionados
+        Apicultor nuevoApicultor = new Apicultor(nombre, edad, aniosExperiencia);
+        
+        // Agregar el nuevo apicultor a la lista
+        apicultores.add(nuevoApicultor);
+
+        // Confirmar que el apicultor fue registrado correctamente
+        System.out.println("✅ Apicultor registrado correctamente.");
+    } catch (Exception e) {
+        // Capturar cualquier error inesperado
+        System.out.println("❌ Error al registrar al apicultor: " + e.getMessage());
     }
+}
 
     // Función para asignar una abeja reina a una colmena
     public static void asignarAbejaReina() {
